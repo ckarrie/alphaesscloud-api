@@ -97,7 +97,7 @@ class AlphaSystem(object):
     def get_auth_headers(self):
         return _get_auth_headers(client=self.client)
 
-    def fetch_settings(self:
+    def fetch_settings(self):
         self.validate_credentials()
         url = const.BASE_URL + const.GET_SETTING_PATH
         params = {
