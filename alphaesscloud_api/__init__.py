@@ -48,10 +48,10 @@ class AlphaClient(object):
         self.systems = {}
 	    
     def validate_credentials(self, validate_token=True):
-        _validate_credentials(client=self, validate_token=validate_token)
+        return _validate_credentials(client=self, validate_token=validate_token)
 
     def get_auth_headers(self):
-        _get_auth_headers(client=self)
+        return _get_auth_headers(client=self)
 
     def login(self):
         self.validate_credentials(validate_token=False)
@@ -92,7 +92,7 @@ class AlphaSystem(object):
         self.has_backupbox = False
 
     def validate_credentials(self, validate_token=True):
-        _validate_credentials(client=self.client, validate_token=validate_token)
+        return _validate_credentials(client=self.client, validate_token=validate_token)
 
     def get_auth_headers(self):
         return _get_auth_headers(client=self.client)
