@@ -24,3 +24,7 @@ CHARGING_MODES = {
     3: 'Fast',
     4: 'Customer / Max'
 }
+CHARGINGPILE_STATUS = {
+    3: 'Charging',
+    6: 'Charging stopped',
+}
