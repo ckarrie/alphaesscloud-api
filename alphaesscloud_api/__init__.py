@@ -116,6 +116,6 @@ class AlphaSystem(object):
             return data
 
     def __str__(self):
-        return '<AlphaSystem {sys_sn}>'.format(system_id=self.sys_sn)
+        return f'<AlphaSystem {self.sys_sn}>'
 
 
