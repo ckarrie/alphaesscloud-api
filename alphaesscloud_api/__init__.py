@@ -86,7 +86,7 @@ class AlphaSystem(object):
         self.has_backupbox = False
         self.charging_piles = {}
 
-    def post_settings(self, post_json={})
+    def post_settings(self, post_json={}):
         self.client.validate_credentials()
         url = const.BASE_URL + 'Account/CustomUseESSSetting'
         params = {
