@@ -132,6 +132,16 @@ class AlphaChargingPile(object):
         resp = requests.post(url, json={'sys_sn': self.alpha_system.sys_sn, 'chargingpile_sn': self.chargingpile_sn}, headers=self.alpha_system.client.get_auth_headers())
         return resp.status_code == requests.codes.ok
 
+    def fetch_charging_status(self):
+        self.alpha_system.client.validate_credentials()
+        url = const.BASE_URL + 'Account/GetChargPileStatusByPileSn'
+        resp = requests.post(url, json={'sys_sn': self.alpha_system.sys_sn, 'chargingpile_id': self.chargingpile_id}, headers=self.alpha_system.client.get_auth_headers())
+        if resp.status_code == requests.codes.ok:
+            status_code = int(resp.json().get('data', '-1'))
+            status_code_text = const.CHARGINGPILE_STATUS.get(status_code, None)
+            if status_code_text:
+                return status_code, status_code_text        
+
     def post_settings(self, json_data=None):
         self.alpha_system.client.validate_credentials()
         url = const.BASE_URL + 'Account/CustomUseESSSetting'
