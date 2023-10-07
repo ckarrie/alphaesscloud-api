@@ -86,6 +86,20 @@ class AlphaSystem(object):
         self.has_backupbox = False
         self.charging_piles = {}
 
+    def post_settings(self, post_json={})
+        self.client.validate_credentials()
+        url = const.BASE_URL + 'Account/CustomUseESSSetting'
+        params = {
+            'system_id': self.system_id
+        }
+        resp = requests.get(
+            url, 
+            #params=params, 
+            json=post_json, 
+            headers=self.client.get_auth_headers()
+        )
+        return resp.status_code == requests.codes.ok
+    
     def fetch_settings(self):
         self.client.validate_credentials()
         url = const.BASE_URL + const.GET_SETTING_PATH
@@ -107,6 +121,20 @@ class AlphaSystem(object):
                 self.charging_piles[chargingpile_obj.chargingpile_id] = chargingpile_obj
             self.data = data
             return data
+
+    def set_soc_cap(self, min_soc=20, max_soc=100)
+        self.client.validate_credentials()
+        if min_soc < max_soc:
+            if min_soc in range(20, 100) and max_soc in range(20, 100):
+                _d = {
+                    "bat_high_cap": f"{max_soc:.2f}",
+                    "bat_use_cap": f"{min_soc:.2f}"
+                }
+                post_json = self.data.copy()
+                post_json.update(_d)
+                result = self.post_settings(post_json=post_json)
+                return result
+                
 
     def __str__(self):
         return f'<AlphaSystem {self.sys_sn}>'
@@ -149,7 +177,7 @@ class AlphaChargingPile(object):
         if resp.status_code == requests.codes.ok:
             return True
 
-    def _generate_settings_json(self, update_kvp={}):
+    def _generate_pile_settings_json(self, update_kvp={}):
         cp_data = self.data.copy()
         cp_data.update(update_kvp)
         cp_data['system_id'] = self.alpha_system.system_id
@@ -163,7 +191,7 @@ class AlphaChargingPile(object):
     def change_charging_mode(self, mode):
         if mode in const.CHARGING_MODES.keys():
             _d = {'chargingmode': str(mode)}
-            sys_data = self._generate_settings_json(update_kvp=_d)
+            sys_data = self._generate_pile_settings_json(update_kvp=_d)
             changed = self.post_settings(json_data=sys_data)
             if changed:
                 # update self
@@ -174,7 +202,7 @@ class AlphaChargingPile(object):
         ampere = int(ampere)
         if ampere in const.MAX_CURRENT_RANGE:
             _d = {'max_current': str(ampere)}
-            sys_data = self._generate_settings_json(update_kvp=_d)        
+            sys_data = self._generate_pile_settings_json(update_kvp=_d)        
             changed = self.post_settings(json_data=sys_data)
             if changed:
                 # update self
