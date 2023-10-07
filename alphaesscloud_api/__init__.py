@@ -89,12 +89,8 @@ class AlphaSystem(object):
     def post_settings(self, post_json={}):
         self.client.validate_credentials()
         url = const.BASE_URL + 'Account/CustomUseESSSetting'
-        params = {
-            'system_id': self.system_id
-        }
-        resp = requests.get(
-            url, 
-            #params=params, 
+        resp = requests.post(
+            url,
             json=post_json, 
             headers=self.client.get_auth_headers()
         )
@@ -127,8 +123,8 @@ class AlphaSystem(object):
         if min_soc < max_soc:
             if min_soc in range(20, 100) and max_soc in range(20, 100):
                 _d = {
-                    "bat_high_cap": f"{max_soc:.2f}",
-                    "bat_use_cap": f"{min_soc:.2f}"
+                    "bat_high_cap": f"{max_soc:.0f}",
+                    "bat_use_cap": f"{min_soc:.0f}"
                 }
                 post_json = self.data.copy()
                 post_json.update(_d)
