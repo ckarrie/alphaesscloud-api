@@ -29,7 +29,7 @@ for sys_id, sys_obj in client.systems.items():
 ## Goals
 
 - charge AlphaESS battery and EV battery at the same time using PV only
-    - in ECO Mode (1) this does not work, because it only charges the car if the SOC reaches 100%
+    - in ECO Mode (1) this does not work, because it only charges the car if the AlphaESS battery SOC reaches 100%
     - in MAX Mode (4) this works, if you calculate the available Ampere for AlphaESS battery and House Load:
         - 2kW for AlphaESS battery: 2000W/(3x230V) = 3A per Phase
         - 2kW for House Load: 2000W/(3x230V) = 3A per Phase
