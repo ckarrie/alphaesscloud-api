@@ -133,8 +133,10 @@ class AlphaSystem(object):
 
     def set_soc_cap(self, min_soc=20, max_soc=100):
         self.client.validate_credentials()
+        min_soc = int(min_soc)
+        max_soc = int(max_soc)
         if min_soc < max_soc:
-            if min_soc in range(20, 100) and max_soc in range(20, 100):
+            if (20 <= min_soc <= 100) and (20 <= max_soc <= 100):
                 _d = {
                     "bat_high_cap": f"{max_soc:.0f}",
                     "bat_use_cap": f"{min_soc:.0f}",
@@ -214,7 +216,7 @@ class AlphaChargingPile(object):
     def change_charging_current(self, ampere):
         current_ampere = self.max_current
         ampere = int(ampere)
-        if ampere in const.MAX_CURRENT_RANGE:
+        if 6 <= ampere <= 16:
             _d = {'max_current': str(ampere)}
             sys_data = self._generate_pile_settings_json(update_kvp=_d)        
             changed = self.post_settings(json_data=sys_data)
