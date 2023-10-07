@@ -139,18 +139,30 @@ class AlphaChargingPile(object):
         if resp.status_code == requests.codes.ok:
             return True
 
+    def _generate_settings_json(self, update_kvp={}):
+        cp_data = self.data.copy()
+        cp_data.update(update_kvp)
+        cp_data['system_id'] = self.alpha_system.system_id
+        sys_data = self.alpha_system.data.copy()
+        for i, cp in enumerate(sys_data.get('charging_pile_list')):
+            if cp.get('chargingpile_id') == self.chargingpile_id:
+                sys_data['charging_pile_list'][i] = cp_data
+                sys_data.update(cp_data)
+        return sys_data
+
+    def change_charging_mode(self, mode):
+        if mode in const.CHARGING_MODES.keys():
+            sys_data = self._generate_settings_json(update_kvp={'chargingmode': str(mode})
+            changed = self.post_settings(json_data=sys_data)
+            if changed:
+                # update self
+                self.alpha_system.fetch_settings()            
+
     def change_charging_current(self, ampere):
         current_ampere = self.max_current
         ampere = int(ampere)
         if ampere in const.MAX_CURRENT_RANGE:
-            cp_data = self.data.copy()
-            cp_data['max_current'] = str(ampere)
-            cp_data['system_id'] = self.alpha_system.system_id
-            sys_data = self.alpha_system.data.copy()
-            for i, cp in enumerate(sys_data.get('charging_pile_list')):
-                if cp.get('chargingpile_id') == self.chargingpile_id:
-                    sys_data['charging_pile_list'][i] = cp_data
-                    sys_data.update(cp_data)
+            sys_data = self._generate_settings_json(update_kvp={'max_current': str(ampere})            
             changed = self.post_settings(json_data=sys_data)
             if changed:
                 # update self
