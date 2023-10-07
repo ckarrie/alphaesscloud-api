@@ -97,10 +97,12 @@ class AlphaSystem(object):
             "system_id": self.system_id,
             "sys_sn": self.sys_sn
         })
-        sorted_dict = dict(sorted(post_json.items()))
-        print("Data to post:")
-        for k, v in sorted_dict.items():
-            print(" " + k + ": " + str(v))
+
+        # Debug
+        #sorted_dict = dict(sorted(post_json.items()))
+        #print("Data to post:")
+        #for k, v in sorted_dict.items():
+        #    print(" " + k + ": " + str(v))
             
         resp = requests.post(
             url,
