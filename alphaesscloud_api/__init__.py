@@ -8,9 +8,13 @@ from . import const
 class AlphaCloudLoginRequired(Exception):
     pass
 
+
 class AlphaCloudLoginExpired(Exception):
     pass
 
+
+class AlphaInvalidInputValue(Exception):
+    pass
 
 
 class AlphaClient(object):
@@ -93,6 +97,11 @@ class AlphaSystem(object):
             "system_id": self.system_id,
             "sys_sn": self.sys_sn
         })
+        sorted_dict = dict(sorted(sys_obj.data.items()))
+        print("Data to post:")
+        for k, v in sorted_dict.items():
+            print(" " + k + ": " + str(v))
+            
         resp = requests.post(
             url,
             json=post_json, 
@@ -135,6 +144,10 @@ class AlphaSystem(object):
                 post_json.update(_d)
                 result = self.post_settings(post_json=post_json)
                 return result
+            else:
+                raise AlphaInvalidInputValue("min_soc/max_soc out of border")
+        else:
+            raise AlphaInvalidInputValue("min_soc sould be lower than max_soc")
                 
 
     def __str__(self):
