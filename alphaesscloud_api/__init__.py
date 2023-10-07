@@ -21,7 +21,7 @@ def _validate_credentials(client, validate_token=True):
         if not client._token_data:
             raise AlphaCloudLoginRequired("No token, Login first")
         expires_in = client._token_data.get('_expires_in')
-        if expires_in >= datetime.now():
+        if expires_in <= datetime.now():
             raise AlphaCloudLoginExpired("Login expired")
 
 def _get_auth_headers(client):
