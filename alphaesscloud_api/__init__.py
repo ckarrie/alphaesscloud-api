@@ -122,7 +122,7 @@ class AlphaSystem(object):
             self.data = data
             return data
 
-    def set_soc_cap(self, min_soc=20, max_soc=100)
+    def set_soc_cap(self, min_soc=20, max_soc=100):
         self.client.validate_credentials()
         if min_soc < max_soc:
             if min_soc in range(20, 100) and max_soc in range(20, 100):
