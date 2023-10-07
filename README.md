@@ -34,6 +34,8 @@ for sys_id, sys_obj in client.systems.items():
         - 2kW for AlphaESS battery: 2000W/(3x230V) = 3A per Phase
         - 2kW for House Load: 2000W/(3x230V) = 3A per Phase
         - `AlphaChargingPile.change_charging_current(ampere)` with `ampere` = PV(A) - 6A
+- Solar to grid in the morning to stabilize/reduce the load in grind
+    - untested but should work in theory: `AlphaSystem.set_soc_cap(max_soc=26)`
 
 ## Code reference/documentation
 
