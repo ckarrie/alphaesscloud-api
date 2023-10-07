@@ -22,5 +22,5 @@ CHARGING_MODES = {
     1: 'Slow',
     2: 'Normal',
     3: 'Fast',
-    4: 'Custumer / Max'
+    4: 'Customer / Max'
 }
