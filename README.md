@@ -26,55 +26,66 @@ for sys_id, sys_obj in client.systems.items():
         cp_obj.stop_charging()
 ```
 
-## `AlphaClient`
+## Goals
+
+- charge AlphaESS battery and EV battery at the same time using PV only
+    - in ECO Mode (1) this does not work, because it only charges the car if the SOC reaches 100%
+    - in MAX Mode (4) this works, if you calculate the available Ampere for AlphaESS battery and House Load:
+        - 2kW for AlphaESS battery: 2000W/(3x230V) = 3A per Phase
+        - 2kW for House Load: 2000W/(3x230V) = 3A per Phase
+        - `AlphaChargingPile.change_charging_current(ampere)` with `ampere` = PV(A) - 6A
+
+## Code reference/documentation
+
+### `AlphaClient`
 
 Represents a user account
 
-### `AlphaClient(username, password)`
+#### `AlphaClient(username, password)`
 
 Set plain login credentials
 
-### `AlphaClient.login()`
+#### `AlphaClient.login()`
 
 Method to generate required get/post headers
 
-### `AlphaClient.fetch_system_list()`
+#### `AlphaClient.fetch_system_list()`
 
 Required method to fill attribute `AlphaClient.systems`
 
-### `AlphaClient.systems`
+#### `AlphaClient.systems`
 
 Dict of AlphaESS systems for this user (key = system id, value = `AlphaSystem` instance)
 
-## `AlphaSystem`
+### `AlphaSystem`
 
 Represents a AlphaESS System
 
-### `AlphaSystem.fetch_settings()`
+#### `AlphaSystem.fetch_settings()`
 
 Required method to fill attribute `AlphaSystem.charging_piles` and set model names and version numbers
 
-## `AlphaSystem.set_soc_cap(min_soc=20, max_soc=100)`
+### `AlphaSystem.set_soc_cap(min_soc=20, max_soc=100)`
 
 Set min and max State of Charge for the battery
 
-## `AlphaChargingPile`
+### `AlphaChargingPile`
 
 Represents a charging pile (aka Wallbox)
 
-### `AlphaChargingPile.stop_charging()`
+#### `AlphaChargingPile.stop_charging()`
 
 stops charging on that pile
 
-### `AlphaChargingPile.start_charging()`
+#### `AlphaChargingPile.start_charging()`
 
 starts charging on that pile
 
-### `AlphaChargingPile.fetch_charging_status()`
+#### `AlphaChargingPile.fetch_charging_status()`
 
 returns text representation of current charging state
 
-### `AlphaChargingPile.change_charging_mode(mode)`
+#### `AlphaChargingPile.change_charging_mode(mode)`
 
 sets charging `mode`:
 - `1`: `SLOW` 
@@ -82,7 +93,7 @@ sets charging `mode`:
 - `3`: `FAST` 
 - `4`: `MAX`
 
-### `AlphaChargingPile.change_charging_current(ampere)`
+#### `AlphaChargingPile.change_charging_current(ampere)`
 
 - `ampere` between `6` and `16`
 - works only if `AlphaChargingPile.change_charging_mode(mode=4)`
