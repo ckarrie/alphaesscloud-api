@@ -1,5 +1,5 @@
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 
 from . import const
@@ -50,7 +50,7 @@ class AlphaCloud(object):
                 'ExpiresIn': d['ExpiresIn'],
                 'RefreshTokenKey': d['RefreshTokenKey'],  
                 '_updated_at': datetime.now(),
-                '_expires_in': datetime.now() + datetime.timedelta(seconds=d['ExpiresIn']),		
+                '_expires_in': datetime.now() + timedelta(seconds=d['ExpiresIn']),		
             }
         
     def get_settings(self, system_id=None):
