@@ -9,7 +9,7 @@ API to AlphaeSS cloud
 
     git clone https://github.com/ckarrie/alphaesscloud-api/
 
-## Usage
+## Usage example
 
     cd alphaesscloud-api
     python3
@@ -21,9 +21,71 @@ client.login()
 client.fetch_system_list()
 for sys_id, sys_obj in client.systems.items():
     sys_data = sys_obj.fetch_settings()
+    sys_obj.set_soc_cap(min_soc=26, max_soc=100)  # set SOC to 26-100%
     for cp_id, cp_obj in sys_obj.charging_piles.items():
         cp_obj.stop_charging()
 ```
+
+## `AlphaClient`
+
+Represents a user account
+
+### `AlphaClient(username, password)`
+
+Set plain login credentials
+
+### `AlphaClient.login()`
+
+Method to generate required get/post headers
+
+### `AlphaClient.fetch_system_list()`
+
+Required method to fill attribute `AlphaClient.systems`
+
+### `AlphaClient.systems`
+
+Dict of AlphaESS systems for this user (key = system id, value = `AlphaSystem` instance)
+
+## `AlphaSystem`
+
+Represents a AlphaESS System
+
+### `AlphaSystem.fetch_settings()`
+
+Required method to fill attribute `AlphaSystem.charging_piles` and set model names and version numbers
+
+## `AlphaSystem.set_soc_cap(min_soc=20, max_soc=100)`
+
+Set min and max State of Charge for the battery
+
+## `AlphaChargingPile`
+
+Represents a charging pile (aka Wallbox)
+
+### `AlphaChargingPile.stop_charging()`
+
+stops charging on that pile
+
+### `AlphaChargingPile.start_charging()`
+
+starts charging on that pile
+
+### `AlphaChargingPile.fetch_charging_status()`
+
+returns text representation of current charging state
+
+### `AlphaChargingPile.change_charging_mode(mode)`
+
+sets charging `mode`:
+- `1`: `SLOW` 
+- `2`: `NORMAL` 
+- `3`: `FAST` 
+- `4`: `MAX`
+
+### `AlphaChargingPile.change_charging_current(ampere)`
+
+- `ampere` between `6` and `16`
+- works only if `AlphaChargingPile.change_charging_mode(mode=4)`
 
 ## Supported
 - System:
