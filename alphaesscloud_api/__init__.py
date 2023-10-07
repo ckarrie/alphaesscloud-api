@@ -41,7 +41,7 @@ class AlphaCloud(object):
 
     def login(self):
         self.validate_credentials(validate_token=False)
-        url = BASE_URL + LOGIN_PATH
+        url = const.BASE_URL + const.LOGIN_PATH
         resp = requests.post(url, json={"username": self._username, "password": self._password}, headers=self.get_auth_headers())
         if resp.status_code == requests.codes.ok:
             d = resp.json().get('data')
