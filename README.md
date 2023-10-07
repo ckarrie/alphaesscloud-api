@@ -24,3 +24,6 @@ for sys_id, sys_obj in client.systems.items():
     for cp_id, cp_obj in sys_obj.charging_piles.items():
         cp_obj.stop_charging()
 ```
+
+## Supported
+- Start and stop charging
