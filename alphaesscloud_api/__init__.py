@@ -162,7 +162,8 @@ class AlphaChargingPile(object):
 
     def change_charging_mode(self, mode):
         if mode in const.CHARGING_MODES.keys():
-            sys_data = self._generate_settings_json(update_kvp={'chargingmode': str(mode})
+            _d = {'chargingmode': str(mode)}
+            sys_data = self._generate_settings_json(update_kvp=_d)
             changed = self.post_settings(json_data=sys_data)
             if changed:
                 # update self
@@ -172,7 +173,8 @@ class AlphaChargingPile(object):
         current_ampere = self.max_current
         ampere = int(ampere)
         if ampere in const.MAX_CURRENT_RANGE:
-            sys_data = self._generate_settings_json(update_kvp={'max_current': str(ampere})            
+            _d = {'max_current': str(ampere)}
+            sys_data = self._generate_settings_json(update_kvp=_d)        
             changed = self.post_settings(json_data=sys_data)
             if changed:
                 # update self
