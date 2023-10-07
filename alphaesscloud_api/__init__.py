@@ -27,16 +27,16 @@ class AlphaCloud(object):
     def get_auth_headers(self):
 	    now = datetime.now()
 	    auth_ts = str(int(datetime.timestamp(now)))		
-	    hash_str = AUTH_SIGNATURE_HASH + auth_ts
-	    auth_sig = AUTH_SIGNATURE_START + hashlib.sha512(hash_str.encode()).hexdigest() + AUTH_SIGNATURE_END
+	    hash_str = const.AUTH_SIGNATURE_HASH + auth_ts
+	    auth_sig = const.AUTH_SIGNATURE_START + hashlib.sha512(hash_str.encode()).hexdigest() + const.AUTH_SIGNATURE_END
 	    auth_headers = {
-	        JSON_KEY_AUTHSIGNATURE: auth_sig,
-	        JSON_KEY_AUTHTIMESTAMP: auth_ts,
+	        const.JSON_KEY_AUTHSIGNATURE: auth_sig,
+	        const.JSON_KEY_AUTHTIMESTAMP: auth_ts,
 	    }
 	    # maybe do something with expired tokens here		
-	    bearer_token = self._token_data.get(JSON_KEY_ACCESS_TOKEN, None)
+	    bearer_token = self._token_data.get(const.JSON_KEY_ACCESS_TOKEN, None)
 	    if bearer_token:
-		    auth_headers[JSON_KEY_AUTHORIZATION] = "Bearer {token}".format(token=bearer_token)
+		    auth_headers[const.JSON_KEY_AUTHORIZATION] = "Bearer {token}".format(token=bearer_token)
 	    return auth_headers
 
     def login(self):
@@ -46,7 +46,7 @@ class AlphaCloud(object):
 	    if resp.status_code == requests.codes.ok:
 		    d = resp.json().get('data')
 		    self._token_data = {
-			    JSON_KEY_ACCESS_TOKEN: d[JSON_KEY_ACCESS_TOKEN],
+			    const.JSON_KEY_ACCESS_TOKEN: d[const.JSON_KEY_ACCESS_TOKEN],
 			    'ExpiresIn': d['ExpiresIn'],
 			    'RefreshTokenKey': d['RefreshTokenKey'],  
 			    '_updated_at': datetime.now(),
@@ -55,7 +55,7 @@ class AlphaCloud(object):
 	    
     def get_settings(self, system_id=None):
 	    self.validate_credentials()
-	    url = BASE_URL + GET_SETTING_PATH
+	    url = const.BASE_URL + const.GET_SETTING_PATH
 	    params = {}
 	    if system_id:
 	        params = {
