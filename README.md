@@ -38,4 +38,4 @@ for sys_id, sys_obj in client.systems.items():
     - Get Charging Status
  
 ## Special Thanks to
-- @vdwals - see https://github.com/CharlesGillanders/homeassistant-alphaESS/issues/70
+- [@vdwals](https://github.com/vdwals) - see https://github.com/CharlesGillanders/homeassistant-alphaESS/issues/70
