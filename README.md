@@ -26,4 +26,16 @@ for sys_id, sys_obj in client.systems.items():
 ```
 
 ## Supported
-- Start and stop charging
+- System:
+    - Set SOC (min/max) via `AlphaSystem.set_soc_cap`
+- EV Charger / Wallbox:
+    - Set Charging Mode
+        - `1`: `slow` aka "ECO-Ladung > Langsamladung"
+        - `2`: `slow` aka "ECO-Ladung > Schonladung"
+        - `3`: `slow` aka "ECO-Ladung > Schnelladung"
+        - `4`: `slow` aka "Kundenspezifische Ladeleistung", use `AlphaChargingPile.change_charging_current` for Ampere per Phase
+    - Start and stop charging
+    - Get Charging Status
+ 
+## Special Thanks to
+- @vdwald - see https://github.com/CharlesGillanders/homeassistant-alphaESS/issues/70
