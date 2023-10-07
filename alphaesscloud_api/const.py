@@ -25,6 +25,7 @@ CHARGING_MODES = {
     4: 'Customer / Max'
 }
 CHARGINGPILE_STATUS = {
+    -1: 'CHARGINGPILE_STATUS CODE NOT FOUND',  # internal
     3: 'Charging',
     6: 'Charging stopped',
 }
