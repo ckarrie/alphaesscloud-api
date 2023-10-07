@@ -139,7 +139,7 @@ class AlphaChargingPile(object):
         if resp.status_code == requests.codes.ok:
             return True
 
-    def change_charging_current(ampere):
+    def change_charging_current(self, ampere):
         current_ampere = self.max_current
         ampere = int(ampere)
         if ampere in const.MAX_CURRENT_RANGE:
