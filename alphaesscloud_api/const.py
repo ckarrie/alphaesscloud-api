@@ -2,6 +2,7 @@
 BASE_URL = "https://cloud.alphaess.com/api/"
 LOGIN_PATH = "Account/Login"
 GET_SETTING_PATH = "Account/GetCustomUseESSSetting"
+GET_SYSTEM_LIST_PATH = "Account/GetCustomUseESSList"
 
 # JSON/HEADERS Keys
 JSON_KEY_ACCESS_TOKEN = "AccessToken"
