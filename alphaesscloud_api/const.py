@@ -16,5 +16,11 @@ AUTH_SIGNATURE_START = "al8e4s"
 AUTH_SIGNATURE_HASH = "LS885ZYDA95JVFQKUIUUUV7PQNODZRDZIS4ERREDS0EED8BCWSS"
 AUTH_SIGNATURE_END = "ui893ed"
 
-# Validation
+# Charging Pile
 MAX_CURRENT_RANGE = range(6, 16)
+CHARGING_MODES = {
+    1: 'Slow',
+    2: 'Normal',
+    3: 'Fast',
+    4: 'Custumer / Max'
+}
