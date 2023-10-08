@@ -14,6 +14,8 @@ API to AlphaeSS cloud
     cd alphaesscloud-api
     python3
 
+### Example 1: Login, set SOC cap, stop charging
+
 ```python3
 import alphaesscloud_api as ae
 client = ae.AlphaClient("my@email.com", "mypassword")
@@ -24,6 +26,41 @@ for sys_id, sys_obj in client.systems.items():
     sys_obj.set_soc_cap(min_soc=26, max_soc=100)  # set SOC to 26-100%
     for cp_id, cp_obj in sys_obj.charging_piles.items():
         cp_obj.stop_charging()
+```
+
+### Example 2: Charge AlphaESS battery and start charging EV
+
+```python3
+from alphaesscloud_api import AlphaClient, const
+import time
+client = AlphaClient("my@email.com", "mypassword")
+client.login(load_settings=True)
+
+charging_current = 6
+
+for _, system in client.systems.items():
+    system.fetch_last_power_data()
+    for _, charging_pile in system.charging_piles.items():
+        print(charging_pile.charging_mode, const.CHARGING_MODES.get(charging_pile.charging_mode))
+        if charging_pile.charging_mode != const.CHARGING_MODE_MAX:
+            charging_pile.change_charging_mode(mode=const.CHARGING_MODE_MAX)
+            print("Set charging mode to", const.CHARGING_MODES.get(const.CHARGING_MODE_MAX))
+        charging_pile.change_charging_current(ampere=charging_current)
+        charging_pile.start_charging()
+    
+
+while True:
+    charging_pile.fetch_charging_status()
+    system.fetch_last_power_data()
+    print(f"Wallbox Power {system.energy_data['chargingpile_sum_power']}W")    
+    time.sleep(10)
+    
+
+while True:
+    system.fetch_last_power_data()
+    if system.energy_data['bat_soc'] >= 100.0:
+        charging_pile.change_charging_mode(mode=const.CHARGING_MODE_SLOW)
+
 ```
 
 ## Goals
@@ -47,9 +84,9 @@ Represents a user account
 
 Set plain login credentials
 
-#### `AlphaClient.login()`
+#### `AlphaClient.login(load_settings=False)`
 
-Method to generate required get/post headers
+Method to generate required get/post headers, `load_settings=True` loads System settings
 
 #### `AlphaClient.fetch_system_list()`
 
@@ -95,9 +132,10 @@ sets charging `mode`:
 - `3`: `FAST` 
 - `4`: `MAX`
 
-#### `AlphaChargingPile.change_charging_current(ampere)`
+#### `AlphaChargingPile.change_charging_current(ampere, watts)`
 
 - `ampere` between `6` and `16`
+- `watts` between `4140` (=6A) and `11040` (=16A)
 - works only if `AlphaChargingPile.change_charging_mode(mode=4)`
 
 ## Supported

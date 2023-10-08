@@ -1,3 +1,6 @@
+# Basics
+DICT_FALLBACK = -1
+
 # URLs
 BASE_URL = "https://cloud.alphaess.com/api/"
 LOGIN_PATH = "Account/Login"
@@ -18,14 +21,22 @@ AUTH_SIGNATURE_END = "ui893ed"
 
 # Charging Pile
 MAX_CURRENT_RANGE = range(6, 16)
+
+CHARGING_MODE_SLOW = 1
+CHARGING_MODE_NORMAL = 2
+CHARGING_MODE_FAST = 3
+CHARGING_MODE_MAX = 4
+
 CHARGING_MODES = {
-    1: 'Slow',
-    2: 'Normal',
-    3: 'Fast',
-    4: 'Customer / Max'
+    CHARGING_MODE_SLOW: 'Slow',
+    CHARGING_MODE_NORMAL: 'Normal',
+    CHARGING_MODE_FAST: 'Fast',
+    CHARGING_MODE_MAX: 'Customer / Max'
 }
+
 CHARGINGPILE_STATUS = {
-    -1: 'CHARGINGPILE_STATUS CODE NOT FOUND',  # internal
+    DICT_FALLBACK: 'CHARGINGPILE_STATUS CODE NOT FOUND',  # internal
     3: 'Charging',
+    4: 'Insufficient power',  # unzureichende Leistung
     6: 'Charging stopped',
 }

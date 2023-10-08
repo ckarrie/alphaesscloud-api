@@ -17,13 +17,17 @@ class AlphaInvalidInputValue(Exception):
     pass
 
 
+class AlphaInvalidResponse(Exception):
+    pass
+
+
 class AlphaClient(object):
     def __init__(self, username, password):
         self._username = username
         self._password = password
         self._token_data = {}
         self.systems = {}
-	    
+
     def validate_credentials(self, validate_token=True):
         if not self._username:
             raise AlphaCloudLoginRequired("Empty username")
@@ -45,13 +49,13 @@ class AlphaClient(object):
             const.JSON_KEY_AUTHSIGNATURE: auth_sig,
             const.JSON_KEY_AUTHTIMESTAMP: auth_ts,
         }
-        # maybe do something with expired tokens here		
+
         bearer_token = self._token_data.get(const.JSON_KEY_ACCESS_TOKEN, None)
         if bearer_token:
             auth_headers[const.JSON_KEY_AUTHORIZATION] = "Bearer {token}".format(token=bearer_token)
         return auth_headers
 
-    def login(self):
+    def login(self, load_settings=False):
         self.validate_credentials(validate_token=False)
         url = const.BASE_URL + const.LOGIN_PATH
         resp = requests.post(url, json={"username": self._username, "password": self._password}, headers=self.get_auth_headers())
@@ -64,6 +68,10 @@ class AlphaClient(object):
                 '_updated_at': datetime.now(),
                 '_expires_in': datetime.now() + timedelta(seconds=d['ExpiresIn']),		
             }
+            if load_settings:
+                self.fetch_system_list()
+                for _, sys_obj in self.systems.items():
+                    sys_obj.fetch_settings()
 
     def fetch_system_list(self):
         self.validate_credentials()
@@ -89,6 +97,8 @@ class AlphaSystem(object):
         self.version_backupbox = None
         self.has_backupbox = False
         self.charging_piles = {}
+        self.energy_data = {}
+        self.energy_data_raw = {}
 
     def post_settings(self, post_json={}):
         self.client.validate_credentials()
@@ -126,12 +136,32 @@ class AlphaSystem(object):
             self.model_battery = data.get('mbat', None)
             self.version_backupbox = data.get('bakbox_ver', None)
             self.has_backupbox = self.version_backupbox is not None
+            charging_mode = int(data.get('chargingmode', const.DICT_FALLBACK))
             # charging piles
             for cp_data in data.get('charging_pile_list', []):
-                chargingpile_obj = AlphaChargingPile(alpha_system=self, data=cp_data)
+                chargingpile_obj = AlphaChargingPile(alpha_system=self, data=cp_data, charging_mode=charging_mode)
                 self.charging_piles[chargingpile_obj.chargingpile_id] = chargingpile_obj
+
             self.data = data
             return data
+
+    def fetch_last_power_data(self):
+        self.client.validate_credentials()
+        url = const.BASE_URL + 'ESS/GetLastPowerDataBySN'
+        params = {
+            'sys_sn': self.sys_sn,
+            'noLoading': False
+        }
+        resp = requests.get(url, params=params, headers=self.client.get_auth_headers())
+        if resp.status_code == requests.codes.ok:
+            data = resp.json().get('data', {})
+            self.energy_data_raw = data
+            self.energy_data = {
+                'pv_sum_power': data.get('ppv1', 0) + data.get('ppv2', 0) + data.get('ppv3', 0) + data.get('ppv4', 0),
+                'chargingpile_sum_power': data.get('ev1_power', 0) + data.get('ev2_power', 0) + data.get('ev3_power', 0) + data.get('ev4_power', 0),
+                'bat_power': data.get('pbat'),
+                'bat_soc': data.get('soc'),
+            }
 
     def set_soc_cap(self, min_soc=20, max_soc=100):
         self.client.validate_credentials()
@@ -153,17 +183,22 @@ class AlphaSystem(object):
         else:
             raise AlphaInvalidInputValue("min_soc sould be lower than max_soc")
                 
-
     def __str__(self):
         return f'<AlphaSystem {self.sys_sn}>'
 
 
 class AlphaChargingPile(object):
-    def __init__(self, alpha_system, data):
+    MIN_CURRENT_MANUAL = 6
+
+    def __init__(self, alpha_system, data, charging_mode=None):
         self.alpha_system = alpha_system
         self.chargingpile_sn = data.get('chargingpile_sn')
         self.chargingpile_id = data.get('chargingpile_id')
         self.max_current = int(data.get('max_current'))
+        self.charging_mode = charging_mode
+        self.name = data.get('chargingpilename')
+        self.max_current_manual = int(data.get('max_current_manual'))
+        self.charging_state = (None, None)
         self.data = data
 
     def stop_charging(self):
@@ -180,13 +215,18 @@ class AlphaChargingPile(object):
 
     def fetch_charging_status(self):
         self.alpha_system.client.validate_credentials()
-        url = const.BASE_URL + 'Account/GetChargPileStatusByPileSn'
+        url = const.BASE_URL + 'ESS/GetChargPileStatusByPileSn'
         resp = requests.post(url, json={'sys_sn': self.alpha_system.sys_sn, 'chargingpile_id': self.chargingpile_id}, headers=self.alpha_system.client.get_auth_headers())
         if resp.status_code == requests.codes.ok:
-            status_code = int(resp.json().get('data', '-1'))
+            status_code = int(resp.json().get('data', const.DICT_FALLBACK))
             status_code_text = const.CHARGINGPILE_STATUS.get(status_code, None)
             if status_code_text:
-                return status_code, status_code_text        
+                self.charging_state = (status_code, status_code_text)
+                return status_code, status_code_text
+            else:
+                raise AlphaInvalidResponse("could not get charging pile status")
+        else:
+            raise AlphaInvalidResponse(f"Error in response: HTTP Code {resp.status_code}")
 
     def post_settings(self, json_data=None):
         self.alpha_system.client.validate_credentials()
@@ -213,15 +253,20 @@ class AlphaChargingPile(object):
             changed = self.post_settings(json_data=sys_data)
             if changed:
                 # update self
-                self.alpha_system.fetch_settings()            
+                #self.alpha_system.fetch_settings()
+                pass
 
-    def change_charging_current(self, ampere):
+    def change_charging_current(self, ampere=None, watts=None):
         current_ampere = self.max_current
+        if ampere is None and watts is not None:
+            # 230V 3-phase
+            ampere = int(watts / (230 * 3))
         ampere = int(ampere)
-        if 6 <= ampere <= 16:
+        if self.MIN_CURRENT_MANUAL <= ampere <= self.max_current_manual:
             _d = {'max_current': str(ampere)}
             sys_data = self._generate_pile_settings_json(update_kvp=_d)        
             changed = self.post_settings(json_data=sys_data)
             if changed:
                 # update self
-                self.alpha_system.fetch_settings()
+                #self.alpha_system.fetch_settings()
+                pass
